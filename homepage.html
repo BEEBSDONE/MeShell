@@ -43,7 +43,6 @@
                 console.log('content:', content)
             })
         }
-
         connectedSubbed();
         privateMessage();
     </script>
@@ -52,5 +51,47 @@
         alt="MeShell Logo" 
         title="Michel" 
         width="150px">
+    <div class="feed-selector">
+        <img id="first-edition-logo"
+            src="/assets/firstedition.png"
+            title="First Edition">
+        <br>
+        <img id="global-logo"
+        src="/assets/global.png"
+        title="Global Chat">
+        <br>
+        <img class="messages-logo"
+            src="/assets/message-logo.png"
+            title="Direct Messages">
+        <div>
+            <img class="publish-logo"
+            src="/assets/publish.png"
+            title="Publish">
+        </div>
+
+    </div>
+    <div class="articles">
+        <div id="card-container"></div>
+        <div id="loader">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+        <div class="card-actions">
+            <span>showing
+                <span id="card-count"></span> of
+                <span id="card-total"></span> cards
+            </span>
+        </div>
+    </div>
+    <div class="right-section">
+        <div id="search-pubkey">
+            <img id="search-logo"
+            src="/assets/search-logo.png">
+        </div>
+        <div>
+            <input type="text" autocomplete="off" id="search-pubkey" placeholder="enter public key to search">
+        </div>
+    </div>
 </body>
 </html>
