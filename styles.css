@@ -1,0 +1,120 @@
+body {
+    background-color: rgb(252, 169, 3);
+    font: 1rem 'Fira Sans', sans-serif;
+}
+
+#LoginLogo {
+    display: block; /* display image as block element */
+    margin: 0 auto; /* center image horizontally */
+    padding: 70px;
+}
+
+.Inputs {
+    display: flex; /* display parent as flex container */
+    flex-direction: column;
+    align-items: center; /* center input vertically */
+    justify-content: center; /* center input horizontally */
+    font: 1rem 'Fira Sans', sans-serif;
+}
+
+#ParentLoginButton {
+    text-align: center;
+}
+
+#LoginButton {
+    width: 100px;
+    height: 25px;
+    color: white;
+    background-color: rgb(252, 169, 3);
+    font: 1.3rem 'Fira Sans', sans-serif;
+    border: 0px;
+}
+
+#ParentRedPill {
+    text-align: center;
+}
+
+#RedPill {
+    width: 100px;
+    margin:0 auto;
+    height: 25px;
+    color: white;
+    background-color: rgb(207, 27, 27);
+    font: 1rem 'Fira Sans', sans-serif;
+    font-size: 0.75em;
+    border: 0px;
+    border-radius: 15px;
+    
+}
+
+#HomeLogo {
+    display: block; /* display image as block element */
+    margin: 0 auto; /* center image horizontally */
+    padding: 20px;
+}
+
+#card-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+.card {
+    height: 55vh;
+    width: calc((100% / 3) - 16px);
+    margin: 8px;
+    border-radius: 3px;
+    transition: all 200ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-actions {
+    margin: 8px;
+    padding: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#loader {
+    display: flex;
+}
+
+.skeleton-card {
+    height: 55vh;
+    width: calc((100% / 3) - 16px);
+    margin: 8px;
+    border-radius: 3px;
+    transition: all 200ms ease-in-out;
+    position: relative;
+    background-color: #eaeaea;
+}
+
+.skeleton-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0));
+    animation: load 1s infinite;
+}
+
+@keyframes load {
+100% {
+    transform: translateX(100%);
+    }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+.skeleton-card::after {
+    animation: none;
+    }
+}

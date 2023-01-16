@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://bitcoincore.tech/apps/bitcoinjs-ui/lib/bitcoinjs-lib.js"></script>
+    <script src="https://bundle.run/noble-secp256k1@1.2.14"></script>
+    <script src="https://bundle.run/browserify-cipher@1.0.1"></script>
+    <title>MeShell</title>
+    <link href="styles.css" rel="stylesheet"></link>
+</head>
+<body>
+    <script>
+        var pubKey = localStorage.getItem("pubKey");
+        var privKey = localStorage.getItem("privkey");
+        var relay = localStorage.getItem("relay");
+        var relayCculture = new WebSocket('wss://relay.cryptocculture.com');;
+
+        var subId   = bitcoinjs.ECPair.makeRandom().privateKey.toString( "hex" )
+        var filterMe  = { "authors": [ pubKey ] }
+
+        function connectedSubbed() {
+            relayCculture.addEventListener('open', async function( e ) {
+                console.log( "connected to " + relay )
+            
+                var subscription = [ "REQ", subId, filterMe ]
+                console.log('Subscription:', subscription)
+
+                relayCculture.send(JSON.stringify( subscription ));
+            })
+        }
+
+        function privateMessage() {
+            relayCculture.addEventListener('message', async function( message ) {
+                var [ type, subId, event ] = JSON.parse( message.data );
+                var { kind, content } = event || {}
+                if (!event) return
+                    console.log('message:', event)
+                if (kind === 4) {
+                    content = decrypt(privKey, pubKey, content)
+                }
+                console.log('content:', content)
+            })
+        }
+
+        connectedSubbed();
+        privateMessage();
+    </script>
+    <img id="HomeLogo" 
+        src="/assets/MeShell_Logo_200_blank.png" 
+        alt="MeShell Logo" 
+        title="Michel" 
+        width="150px">
+    <div id="card-container">
+    </div>
+    <div id="loader">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+    </div>
+    <div class="card-actions">
+        <span>Showing 
+            <span id="card-count"></span> of 
+            <span id="card-total"></span> cards      
+        </span>
+    </div>
+</body>
+</html>

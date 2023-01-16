@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://bitcoincore.tech/apps/bitcoinjs-ui/lib/bitcoinjs-lib.js"></script>
+        <script src="https://bundle.run/noble-secp256k1@1.2.14"></script>
+        <script src="https://bundle.run/browserify-cipher@1.0.1"></script>
+        <title>MeShell</title>
+        <link href="styles.css" rel="stylesheet"></link>
+    </head>
+    <body>
+        <img id="LoginLogo" src="/assets/MeShell_Logo_200_blank.png" alt="MeShell Logo" title="Michel" width="25%">
+        <div class="Inputs">
+            <input type="text" autocomplete="off" id="pubKeyGen" placeholder="Public Key" size="62">
+            <br><input type="text" autocomplete="off" id="privKeyGen" placeholder="Private Key" size="62">
+        </div>
+        <br>
+        <div id="ParentLoginButton">
+            <a href="homepage.html">
+            <button id="LoginButton">Login</button>
+            </a>
+        </div>
+        <p style="color: white; text-align: center">If you don't have a Nostr account you can generate below</p>
+        <div id="ParentRedPill">
+            <button id="RedPill" 
+                    onclick="generatekeys()">
+                    RED PILL
+            </button>
+        </div>
+        <script>
+            var relay = "wss://relay.cryptocculture.com";
+            var socket = new WebSocket( relay );
+
+            localStorage.setItem("relay", relay);
+            localStorage.setItem("socket", socket);
+
+            var { getSharedSecret, schnorr, utils } = nobleSecp256k1;
+            var crypto  = window.crypto ;
+            var getRand = size => crypto.getRandomValues(new Uint8Array(size));
+            var sha256  = bitcoinjs.crypto.sha256;
+            var keypair = bitcoinjs.ECPair.makeRandom();
+            
+            function generatekeys() {
+                var privKey = keypair.privateKey.toString( "hex" )
+                var pubKey  = keypair.publicKey.toString( "hex" )
+                pubKey = pubKey.substring (2)
+
+                console.log(pubKey)
+                console.log(privKey)
+
+                document.getElementById("pubKeyGen").value = pubKey;
+                document.getElementById("privKeyGen").value = privKey;
+
+                localStorage.setItem("pubKey", pubKey);
+                localStorage.setItem("privKey", privKey);
+            }
+        </script>
+    </body>
+</html>
