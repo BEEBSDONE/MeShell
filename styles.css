@@ -67,26 +67,97 @@ body {
 
 #first-edition-logo {  
     width: 30px;
-    padding-left: 15px;
+    padding-left: 20px;
     padding-bottom: 30px;
 }
+
 
 #global-logo {
     width: 30px;
-    padding-left: 15px;
+    padding-left: 20px;
     padding-bottom: 30px;
 }
 
-.messages-logo {
+#messages-logo {
     width: 30px;
-    padding-left: 15px;
+    padding-left: 20px;
     padding-bottom: 30px;
 }
+
 
 .publish-logo {
     width: 30px;
     padding-left: 15px;
     padding-bottom: 30px;
+}
+
+#publish-button {
+    background-color: transparent;
+    border: 0px;
+    width: 30px;
+    height: 30px;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    border-radius: 10px;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#publish-textarea {
+    height: 80%;
+    width: 95%;
+    padding-left: 5px;
+    font: 1.3rem 'Fira Sans', sans-serif;
+    align-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+
+#padding-button {
+    padding-top: 10px;
+}
+
+#publish-text-button {
+    font: 'Fira Sans', sans-serif;
+    font-size: 20px;
+    color: white;
+    border-radius: 5px;
+    background-color: rgb(252, 169, 3);
+    border: 0px;
 }
 
 .articles {
@@ -106,20 +177,6 @@ body {
     overflow: auto;
 }
 
-.row {
-    display: flex;
-  }
-  
-.col {
-    width: 33.33%;
-}
-  
-.item {
-    width: 100%;
-    height: 50px;
-    background-color: #eee;
-    margin-bottom: 10px;
-}
 
 .right-section {
     text-align: right;
@@ -135,11 +192,13 @@ body {
 
 #search-logo {
     width: 20px;
-    padding-right: 15px;
+    padding-right: 5px;
+    padding-top: 5px;
+    float: left;
 }
 
 #input-pubkey {
-    padding-right: 15px;
+    padding-right: 20px;
 }
 
 

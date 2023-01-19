@@ -12,9 +12,11 @@
 </head>
 <body>
     <script>
+
+        var relay = localStorage.getItem("relay");
+        var socket = new WebSocket(relay);
         var pubKey = localStorage.getItem("pubKey");
         var privKey = localStorage.getItem("privkey");
-        var relay = localStorage.getItem("relay");
         var relayCculture = new WebSocket('wss://relay.cryptocculture.com');;
 
         var subId   = bitcoinjs.ECPair.makeRandom().privateKey.toString( "hex" )
@@ -31,7 +33,46 @@
             })
         }
 
-        function privateMessage() {
+	    function hexToBytes( hex ) {
+	        return Uint8Array.from( hex.match( /.{1,2}/g ).map( ( byte ) => parseInt( byte, 16 ) ) );
+	    }
+
+	    function bytesToHex( bytes ) {
+	        return bytes.reduce( ( str, byte ) => str + byte.toString( 16 ).padStart( 2, '0' ), '' );
+	    }
+	    function base64ToHex( str ) {
+	        var raw = atob( str );
+	        var result = '';
+	        var i; for ( i=0; i<raw.length; i++ ) {
+	            var hex = raw.charCodeAt( i ).toString( 16 );
+	            result += ( hex.length === 2 ? hex : '0' + hex );
+	        }
+	        return result;
+	    }
+        function encrypt( privkey, pubkey, text ) {
+            var key = nobleSecp256k1.getSharedSecret( privkey, '02' + pubkey, true ).substring( 2 );
+            var iv = window.crypto.getRandomValues(new Uint8Array(16));
+            var cipher = browserifyCipher.createCipheriv( 'aes-256-cbc', hexToBytes( key ), iv );
+            var encryptedMessage = cipher.update(text,"utf8","base64");
+            emsg = encryptedMessage + cipher.final( "base64" );
+            var uint8View = new Uint8Array( iv.buffer );
+            var decoder = new TextDecoder();
+            return emsg + "?iv=" + btoa( String.fromCharCode.apply( null, uint8View ) );
+        }
+        function decrypt( privkey, pubkey, ciphertext ) {
+            var [ emsg, iv ] = ciphertext.split( "?iv=" );
+            var key = nobleSecp256k1.getSharedSecret( privkey, '02' + pubkey, true ).substring( 2 );
+            var decipher = browserifyCipher.createDecipheriv(
+                'aes-256-cbc',
+                hexToBytes( key ),
+                hexToBytes( base64ToHex( iv ) )
+            );
+            var decryptedMessage = decipher.update( emsg, "base64" );
+            dmsg = decryptedMessage + decipher.final( "utf8" );
+            return dmsg;
+        }
+
+        function message() {
             relayCculture.addEventListener('message', async function( message ) {
                 var [ type, subId, event ] = JSON.parse( message.data );
                 var { kind, content } = event || {}
@@ -44,35 +85,108 @@
             })
         }
         connectedSubbed();
-        privateMessage();
+        message();
     </script>
+
     <img id="HomeLogo" 
         src="/assets/MeShell_Logo_200_blank.png" 
         alt="MeShell Logo" 
         title="Michel" 
         width="150px">
+
     <div class="feed-selector">
         <img id="first-edition-logo"
             src="/assets/firstedition.png"
             title="First Edition">
-        First Edition
         <br>
         <img id="global-logo"
-        src="/assets/global.png"
-        title="Global Chat">
-        Global Chat <style> </style>
-        <br>
-        <img class="messages-logo"
+            src="/assets/global.png"
+            title="Global Chat">
+            <br>
+        <img id="messages-logo"
             src="/assets/message-logo.png"
             title="Direct Messages">
-            Messages
-        <div>
+        <br>
+        <button id="publish-button">
             <img class="publish-logo"
             src="/assets/publish.png"
             title="Publish">
-            Publish
-        </div>
+        </button>
+    </div>
+    <div id="publish-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <textarea id="publish-textarea" 
+                    name="publish-text"
+                    rows="15"
+                    autocomplete="off"
+                    autocapitalize="on"
+                    placeholder="Say something to the world"></textarea>
+            <br>
+            <div id="padding-button"></div>
+            <button id="publish-text-button" onclick="publish()">
+                Publish
+            </button>
+            <script>
+                async function getSignedEvent1(event1, privKey) {
+                    var eventData = JSON.stringify([
+                        0,                    // Reserved for future use
+                        event1['pubkey'],        // The sender's public key
+                        event1['created_at'],    // Unix timestamp
+                        event1['kind'],        // Message “kind” or type
+                        event1['tags'],        // Tags identify replies/recipients
+                        event1['content']        // Your note contents
+                    ])
+                    event1.id  = sha256( eventData ).toString( 'hex' )
+                    event1.sig = await schnorr.sign( event1.id, privKey ) 
+                    return event1
+                }
 
+                function publish () {
+                    var publishTextArea = document.getElementById('publish-textarea');
+                    var contentPublish = publishTextArea.value;
+
+                    console.log(contentPublish)
+
+                    socket.addEventListener('publish', async function( eventtype1 ) {
+
+                        var event1 = {
+                            "content"    : contentPublish,
+                            "created_at" : Math.floor( Date.now() / 1000 ),
+                            "kind"       : 1,
+                            "tags"       : [],
+                            "pubkey"     : pubKey,
+                        };
+
+                        var signedEvent1 = await getSignedEvent1(event1, privKey);
+		                console.log('signedEvent:', signedEvent1);
+		                socket.send(JSON.stringify([ "EVENT", signedEvent1 ]));
+                    })
+                }
+            </script>
+        </div>
+        <script>
+            var modal = document.getElementById("publish-modal");
+            var btn = document.getElementById("publish-button");
+            var span = document.getElementsByClassName("close")[0];
+            var text = document.getElementById('publish-textarea');
+
+            btn.onclick = function() {
+            modal.style.display = "block";
+            }
+
+            span.onclick = function() {
+            modal.style.display = "none"
+            document.getElementById('publish-textarea').value = '';
+            }
+
+            window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                document.getElementById('publish-textarea').value = '';
+            }
+            }
+        </script>
     </div>
     <div class="articles">
         
@@ -80,7 +194,7 @@
     <div class="right-section">
         <div>
             <img id="search-logo"
-            src="/assets/search-logo.png">
+                src="/assets/search-logo.png">
         </div>
         <div id="input-pubkey">
             <input type="text" autocomplete="off" placeholder="enter public key to search">
