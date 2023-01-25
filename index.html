@@ -7,6 +7,9 @@
         <script src="https://bitcoincore.tech/apps/bitcoinjs-ui/lib/bitcoinjs-lib.js"></script>
         <script src="https://bundle.run/noble-secp256k1@1.2.14"></script>
         <script src="https://bundle.run/browserify-cipher@1.0.1"></script>
+        <script src="https://bundle.run/bip39@3.0.4"></script>
+        <script src="https://bundle.run/bip32@2.0.6"></script>
+        <script src="https://bundle.run/buffer@6.0.3"></script>
         <title>MeShell</title>
         <link href="styles.css" rel="stylesheet"></link>
     </head>
@@ -36,24 +39,43 @@
             localStorage.setItem("relay", relay);
             localStorage.setItem("socket", socket);
 
-            var { getSharedSecret, schnorr, utils } = nobleSecp256k1;
-            var crypto  = window.crypto ;
-            var getRand = size => crypto.getRandomValues(new Uint8Array(size));
-            var sha256  = bitcoinjs.crypto.sha256;
-            var keypair = bitcoinjs.ECPair.makeRandom();
-            
+            function computeRawPrivkey( node ) {
+                    return bitcoinjs.ECPair.fromPrivateKey( node.privateKey, { network: bitcoinjs.networks.mainnet } );
+                }
+
+
+            function getPrivkeyHex( backupwords ) {
+                    var seed = bip39.mnemonicToSeedSync( backupwords );
+                    var node = bip32.fromSeed( seed );
+                    var path = "m/44'/1237'/0'/0/0";
+                    var root = node;
+                    var child = root.derivePath( path );
+                    return computeRawPrivkey( child );
+            }
+
+
+            function toHexString(byteArray) {
+                    return Array.from(byteArray, function(byte) {
+                            return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+                    }).join('');
+            }
+
             function generatekeys() {
-                var privKey = keypair.privateKey.toString( "hex" )
-                var pubKey  = keypair.publicKey.toString( "hex" )
-                pubKey = pubKey.substring (2)
+                
+                var backupwords = bip39.generateMnemonic();
+                console.log("your backup words are " + backupwords);
+                var privKey = getPrivkeyHex( backupwords );
+                privKey = privKey.__D.toString( 'hex' );
+                var pubKey = nobleSecp256k1.getPublicKey( privKey, true );
 
-                console.log(pubKey)
-                console.log(privKey)
+                var pubKeyMinus2 = pubKey.substring( 2 );
+                console.log( "your public key is " + pubKeyMinus2);
+                console.log("your private key is " + privKey)
 
-                document.getElementById("pubKeyGen").value = pubKey;
+                document.getElementById("pubKeyGen").value = pubKeyMinus2;
                 document.getElementById("privKeyGen").value = privKey;
 
-                localStorage.setItem("pubKey", pubKey);
+                localStorage.setItem("pubKey", pubKeyMinus2);
                 localStorage.setItem("privKey", privKey);
             }
         </script>
