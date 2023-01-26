@@ -33,13 +33,20 @@
                 console.log("Your Private Key: " + privKey);
                 
                 var subId = bitcoinjs.ECPair.makeRandom().privateKey.toString( "hex" );
-                var filterMe = { "authors": [ pubKey ] };
+                var filterMe = { "authors": [ pubKey ], "kinds": [1] };
                 var subscriptionMe = [ "REQ", subId, filterMe ];
 
                 subscriptionMe = JSON.stringify( subscriptionMe );
                 sessionStorage.subscriptionMe = subscriptionMe;
                 socket.send( sessionStorage.subscriptionMe );
                 console.log(subscriptionMe);
+
+
+
+                var petName
+                var about
+                var proPic
+
 
                 const sendNote = document.getElementById('makeNoteButton');
                 sendNote.innerHTML = `<button id="publish-text-button" onclick="makeNote(document.getElementById('publish-textarea').value)">Publish</button>`;
@@ -108,48 +115,77 @@
         connectedSubbed();
         message();
     </script>
+        <img id="HomeLogo" 
+            src="/assets/MeShell_Logo_200_blank.png" 
+            alt="MeShell Logo" 
+            title="Michel" 
+            width="150px">
 
-    <img id="HomeLogo" 
-        src="/assets/MeShell_Logo_200_blank.png" 
-        alt="MeShell Logo" 
-        title="Michel" 
-        width="150px">
-
-    <div class="feed-selector">
-        <img id="first-edition-logo"
-            src="/assets/firstedition.png"
-            title="First Edition">
-        <br>
-        <img id="global-logo"
-            src="/assets/global.png"
-            title="Global Chat">
+        <div class="feed-selector">
+            <img id="first-edition-logo"
+                src="/assets/firstedition.png"
+                title="First Edition">
             <br>
-        <img id="messages-logo"
-            src="/assets/message-logo.png"
-            title="Direct Messages">
-        <br>
-        <button id="publish-button">
-            <img class="publish-logo"
-            src="/assets/publish.png"
-            title="Publish">
-        </button>
-    </div>
-    <div id="publish-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <textarea id="publish-textarea" 
-                    name="publish-text"
-                    rows="15"
-                    autocomplete="off"
-                    autocapitalize="on"
-                    placeholder="Say something to the world"></textarea>
+            <img id="global-logo"
+                src="/assets/global.png"
+                title="Global Chat">
+                <br>
+            <img id="messages-logo"
+                src="/assets/message-logo.png"
+                title="Direct Messages">
             <br>
-            <div id="padding-button"></div>
-            <div id="makeNoteButton">
-            <button id="publish-text-button" onclick="makeNote(document.getElementById('publish-textarea').value)">
-                Publish
+            <button id="publish-button">
+                <img class="publish-logo"
+                src="/assets/publish.png"
+                title="Publish">
             </button>
+            <br>
+            <button id="settings-button">
+                <img id = "settingsLogo"
+                src="/assets/settings-logo.png"
+                title="Settings">
+            </button>
+        </div>
+        <div id="publish-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <textarea id="publish-textarea"
+                        rows="15"
+                        autocomplete="off"
+                        autocapitalize="on"
+                        placeholder="Say something to the world"></textarea>
+                <br>
+                <div id="padding-button"></div>
+                <div id="makeNoteButton">
+                <button id="publish-text-button" onclick="makeNote(document.getElementById('publish-textarea').value)">
+                    Publish
+                </button>
+                </div>
             </div>
+        </div>
+        <div id="settings-modal-id" class="settings-modal">
+            <div class="settings-modal-content">
+                <span class="settingsClose">&times;</span>
+                <div id="nameSection">
+                    <p>User Name</p>
+                    <textarea id="petnameTextArea"
+                            placeholder="You can choose your name"></textarea>
+                </div>
+                <div id="aboutSection">
+                    <p>About</p>
+                    <textarea id="aboutTextArea"
+                        placeholder = "You can write about yourself here"></textarea>
+                </div>
+                <div id = "pictureSection">
+                    <p>Profile Picture</p>
+                    <textarea id = "pictureUrlArea"
+                        placeholder = "Paste your link here"></textarea>
+                </div>
+                <div id="saveChangesSettings">
+                    <button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameTextArea').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureUrlArea').value)">Save</button>
+                </div>
+            </div>
+        </div>
             <script>
                 function makeNote( note ) {
                     console.log( "note: '" + note + "'" );
@@ -199,7 +235,42 @@
                     modal.style.display = "none";
                     document.getElementById('publish-textarea').value = '';
                 }
-                
+            </script>
+            <script>
+                var settingsModal = document.getElementById("settings-modal-id");
+                var settingsButton = document.getElementById("settings-button");
+                var settingsCloseButton = document.getElementsByClassName("settingsClose")[0];
+                var textPetname = document.getElementById("petnameTextArea").value;
+                var textAbout = document.getElementById("aboutTextArea").value;
+                var urlProfilePicture = document.getElementById("pictureUrlArea").value;
+            
+                settingsButton.onclick = function() {
+                    settingsModal.style.display = "block";
+                }
+            
+                settingsCloseButton.onlick = function() {
+                    settingsModal.style.display = "none";
+                }
+            
+                window.onclick = function(event) {
+                    if (event.target == settingsModal) {
+                        settingsModal.style.display = "none";
+                    }
+                }
+            
+                function SendMetadata(textPetname, textAbout, urlProfilePicture) {
+                    console.log("your Nickname is " + textPetname);
+                    console.log("your About section is " + textAbout);
+                    console.log("your Profile picture URL is " + urlProfilePicture);
+
+                    document.getElementById('userName').innerHTML = textPetname;
+
+                    localStorage.setItem("textPetname", textPetname);
+                    localStorage.setItem("textAbout", textAbout);
+                    localStorage.setItem("urlProfilePicture", urlProfilePicture);
+
+                    settingsModal.style.display = "none";
+                }
             </script>
         </div>
         <script>
@@ -226,106 +297,119 @@
         </script>
     </div>
     <div class="articles">
-    <div id="card-container"></div>
-    <div id="loader">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-    </div>
-    <div class="card-actions">
-        <span>Showing
-            <span id="card-count"></span> of
-            <span id="card-total"></span> cards
-        </span>
-    </div>
-    <script>
-        const cardContainer = document.getElementById("card-container");
-        const cardCountElem = document.getElementById("card-count");
-        const cardTotalElem = document.getElementById("card-total");
-        const loader = document.getElementById("loader");
+        <div class="userInfo">
+            <img id="profilePic" src=""></img>
+            <p id="userName"></p>
+            <div id="userBio"></div>
+            <div id="following"></div>
+            <div id="followers"></div>
+            <script>
+                /*
+                
+                var petName = document.getElementById("textPetname");
+                if (petName == null) {
+                    document.getElementById('userName').innerHTML = pubKeyMinus2; 
+                } else {
+                    document.getElementById('userName').innerHTML = petName;
+                };
+                */
+                document.getElementById('userName').innerHTML = pubKeyMinus2;
 
-        const cardLimit = 99;
-        const cardIncrease = 9;
-        const pageCount = Math.ceil(cardLimit / cardIncrease);
-        let currentPage = 1;
+                //var textPetname = localStorage.getItem(textPetname);
+                console.log("Nickname is: " + textPetname);
+                
+            </script>
+        </div>
+        <div id="card-container"></div>
+        <div id="loader">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+        <div class="card-actions">
+            <span>Showing
+                <span id="card-count"></span> of
+                <span id="card-total"></span> Notes
+            </span>
+        </div>
+        <script>
+            const cardContainer = document.getElementById("card-container");
+            const cardCountElem = document.getElementById("card-count");
+            const cardTotalElem = document.getElementById("card-total");
+            const loader = document.getElementById("loader");
 
-        cardTotalElem.innerHTML = cardLimit;
+            const cardLimit = 99;
+            const cardIncrease = 9;
+            const pageCount = Math.ceil(cardLimit / cardIncrease);
+            let currentPage = 1;
 
-        var throttleTimer;
-        const throttle = (callback, time) => {
-        if (throttleTimer) return;
+            cardTotalElem.innerHTML = cardLimit;
 
-        throttleTimer = true;
+            var throttleTimer;
+            const throttle = (callback, time) => {
+            if (throttleTimer) return;
 
-        setTimeout(() => {
-            callback();
-            throttleTimer = false;
-        }, time);
-        };
+            throttleTimer = true;
 
-        const getRandomColor = () => {
-        const h = Math.floor(Math.random() * 360);
+            setTimeout(() => {
+                callback();
+                throttleTimer = false;
+            }, time);
+            };
 
-        return `hsl(${h}deg, 90%, 85%)`;
-        };
+            const createCard = (index) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = index;
+            card.style.backgroundColor = "white";
+            cardContainer.appendChild(card);
+            };
 
-        const createCard = (index) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = index;
-        card.style.backgroundColor = getRandomColor();
-        cardContainer.appendChild(card);
-        };
+            const addCards = (pageIndex) => {
+            currentPage = pageIndex;
 
-        const addCards = (pageIndex) => {
-        currentPage = pageIndex;
+            const startRange = (pageIndex - 1) * cardIncrease;
+            const endRange =
+                currentPage == pageCount ? cardLimit : pageIndex * cardIncrease;
 
-        const startRange = (pageIndex - 1) * cardIncrease;
-        const endRange =
-            currentPage == pageCount ? cardLimit : pageIndex * cardIncrease;
+            cardCountElem.innerHTML = endRange;
 
-        cardCountElem.innerHTML = endRange;
-
-        for (let i = startRange + 1; i <= endRange; i++) {
-            createCard(i);
-        }
-        };
-
-        const handleInfiniteScroll = () => {
-        throttle(() => {
-            const endOfPage =
-            window.innerHeight + window.pageYOffset >= document.body.offsetHeight;
-
-            if (endOfPage) {
-            addCards(currentPage + 1);
+            for (let i = startRange + 1; i <= endRange; i++) {
+                createCard(i);
             }
+            };
 
-            if (currentPage === pageCount) {
-            removeInfiniteScroll();
-            }
-        }, 1000);
-        };
+            const handleInfiniteScroll = () => {
+            throttle(() => {
+                const endOfPage =
+                window.innerHeight + window.pageYOffset >= document.body.offsetHeight;
 
-        const removeInfiniteScroll = () => {
-        loader.remove();
-        window.removeEventListener("scroll", handleInfiniteScroll);
-        };
+                if (endOfPage) {
+                addCards(currentPage + 1);
+                }
 
-        window.onload = function () {
-        addCards(currentPage);
-        };
+                if (currentPage === pageCount) {
+                removeInfiniteScroll();
+                }
+            }, 1000);
+            };
 
-        window.addEventListener("scroll", handleInfiniteScroll);
-    </script>
+            const removeInfiniteScroll = () => {
+            loader.remove();
+            window.removeEventListener("scroll", handleInfiniteScroll);
+            };
+
+            window.onload = function () {
+            addCards(currentPage);
+            };
+
+            window.addEventListener("scroll", handleInfiniteScroll);
+        </script>
     </div>
 
         
     </div>
     <div class="right-section">
-        <div>
-            <img id="search-logo"
-                src="/assets/search-logo.png">
-        </div>
         <div id="input-pubkey">
             <input type="text" autocomplete="off" placeholder="enter public key to search">
         </div>
