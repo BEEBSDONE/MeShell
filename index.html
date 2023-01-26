@@ -33,12 +33,6 @@
             </button>
         </div>
         <script>
-            var relay = "wss://relay.cryptocculture.com";
-            var socket = new WebSocket( relay );
-
-            localStorage.setItem("relay", relay);
-            localStorage.setItem("socket", socket);
-
             function computeRawPrivkey( node ) {
                     return bitcoinjs.ECPair.fromPrivateKey( node.privateKey, { network: bitcoinjs.networks.mainnet } );
                 }
@@ -75,7 +69,8 @@
                 document.getElementById("pubKeyGen").value = pubKeyMinus2;
                 document.getElementById("privKeyGen").value = privKey;
 
-                localStorage.setItem("pubKey", pubKeyMinus2);
+                localStorage.setItem("pubKey", pubKey);
+                localStorage.setItem("pubKeyMinus2", pubKeyMinus2);
                 localStorage.setItem("privKey", privKey);
             }
         </script>

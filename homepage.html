@@ -17,6 +17,7 @@
     <script>
         var relay = 'wss://relay.cryptocculture.com'
         var socket = new WebSocket( relay );
+        var pubKeyMinus2 = localStorage.getItem("pubKeyMinus2");
         var pubKey = localStorage.getItem("pubKey");
         var privKey = localStorage.getItem("privKey");
         var { getSharedSecret, schnorr, utils } = nobleSecp256k1;
@@ -28,7 +29,7 @@
         function connectedSubbed() {
             socket.addEventListener('open', function( event ) {
                 console.log( "connected to " + relay )
-                console.log("Your Public Key: " + pubKey);
+                console.log("Your Public Key: " + pubKeyMinus2);
                 console.log("Your Private Key: " + privKey);
                 
                 var subId = bitcoinjs.ECPair.makeRandom().privateKey.toString( "hex" );
@@ -65,7 +66,7 @@
 	        return result;
 	    }
 
-        function encrypt( privkey, pubkey, text ) {
+        function encrypt( privkey, pubKeyMinus2, text ) {
             var key = nobleSecp256k1.getSharedSecret( privkey, '02' + pubkey, true ).substring( 2 );
             var iv = window.crypto.getRandomValues(new Uint8Array(16));
             var cipher = browserifyCipher.createCipheriv( 'aes-256-cbc', hexToBytes( key ), iv );
@@ -76,7 +77,7 @@
             return emsg + "?iv=" + btoa( String.fromCharCode.apply( null, uint8View ) );
         }
 
-        function decrypt( privkey, pubkey, ciphertext ) {
+        function decrypt( privkey, pubKeyMinus2, ciphertext ) {
             var [ emsg, iv ] = ciphertext.split( "?iv=" );
             var key = nobleSecp256k1.getSharedSecret( privkey, '02' + pubkey, true ).substring( 2 );
             var decipher = browserifyCipher.createDecipheriv(
@@ -90,13 +91,16 @@
         }
 
         function message() {
-            socket.addEventListener('message', async function( message ) {
+            socket.addEventListener('message', function( message ) {
                 var [ type, subId, event ] = JSON.parse( message.data );
                 var { kind, content } = event || {}
                 if (!event) return
                     console.log('message:', event)
                 if (kind === 4) {
-                    content = decrypt(privKey, pubKey, content)
+                    content = decrypt(privKey, pubKeyMinus2, content)
+                }
+                if (kind === 1) {
+                    console.log('content:', content)
                 }
                 console.log('content:', content)
             })
@@ -153,7 +157,7 @@
                     console.log( now );
                     var newevent = [
                             0,
-                            pubKey,
+                            pubKeyMinus2,
                             now,
                             1,
                             [],
@@ -170,14 +174,14 @@
                                     nobleSecp256k1.schnorr.verify( 
                                             sig,
                                             msghash,
-                                            pubKey
+                                            pubKeyMinus2
                                     ).then(
                                             value => { 
                                                     console.log( "is the signature valid for the above pubkey over the message 'test'?", value );
                                                     if ( value ) {
                                                             var fullevent = {
                                                                     "id": msghash,
-                                                                    "pubkey": pubKey,
+                                                                    "pubkey": pubKeyMinus2,
                                                                     "created_at": now,
                                                                     "kind": 1,
                                                                     "tags": [],
@@ -192,7 +196,10 @@
                                 );
                             }
                     );
+                    modal.style.display = "none";
+                    document.getElementById('publish-textarea').value = '';
                 }
+                
             </script>
         </div>
         <script>
@@ -206,7 +213,7 @@
             }
 
             span.onclick = function() {
-            modal.style.display = "none"
+            modal.style.display = "none";
             document.getElementById('publish-textarea').value = '';
             }
 
