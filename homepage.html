@@ -32,7 +32,7 @@
                 console.log("Your Public Key: " + pubKeyMinus2);
                 console.log("Your Private Key: " + privKey);
                 
-                var subId = bitcoinjs.ECPair.makeRandom().privateKey.toString( "hex" );
+                var subId = keypair.privateKey.toString( "hex" );
                 var filterMe = { "authors": [ pubKey ], "kinds": [1] };
                 var subscriptionMe = [ "REQ", subId, filterMe ];
 
@@ -40,12 +40,6 @@
                 sessionStorage.subscriptionMe = subscriptionMe;
                 socket.send( sessionStorage.subscriptionMe );
                 console.log(subscriptionMe);
-
-
-
-                var petName
-                var about
-                var proPic
 
 
                 const sendNote = document.getElementById('makeNoteButton');
@@ -75,7 +69,7 @@
 
         function encrypt( privkey, pubKeyMinus2, text ) {
             var key = nobleSecp256k1.getSharedSecret( privkey, '02' + pubkey, true ).substring( 2 );
-            var iv = window.crypto.getRandomValues(new Uint8Array(16));
+            var iv = crypto.getRandomValues(new Uint8Array(16));
             var cipher = browserifyCipher.createCipheriv( 'aes-256-cbc', hexToBytes( key ), iv );
             var encryptedMessage = cipher.update(text,"utf8","base64");
             emsg = encryptedMessage + cipher.final( "base64" );
@@ -168,8 +162,8 @@
                 <span class="settingsClose">&times;</span>
                 <div id="nameSection">
                     <p>User Name</p>
-                    <textarea id="petnameTextArea"
-                            placeholder="You can choose your name"></textarea>
+                    <input id="petnameInput"
+                            placeholder="You can choose your name">
                 </div>
                 <div id="aboutSection">
                     <p>About</p>
@@ -178,11 +172,11 @@
                 </div>
                 <div id = "pictureSection">
                     <p>Profile Picture</p>
-                    <textarea id = "pictureUrlArea"
-                        placeholder = "Paste your link here"></textarea>
+                    <input id = "pictureInput"
+                        placeholder = "Paste your link here">
                 </div>
                 <div id="saveChangesSettings">
-                    <button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameTextArea').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureUrlArea').value)">Save</button>
+                    <button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameInput').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureInput').value)">Save</button>
                 </div>
             </div>
         </div>
@@ -240,9 +234,9 @@
                 var settingsModal = document.getElementById("settings-modal-id");
                 var settingsButton = document.getElementById("settings-button");
                 var settingsCloseButton = document.getElementsByClassName("settingsClose")[0];
-                var textPetname = document.getElementById("petnameTextArea").value;
+                var textPetname = document.getElementById("petnameInput").value;
                 var textAbout = document.getElementById("aboutTextArea").value;
-                var urlProfilePicture = document.getElementById("pictureUrlArea").value;
+                var urlProfilePicture = document.getElementById("pictureInput").value;
             
                 settingsButton.onclick = function() {
                     settingsModal.style.display = "block";
@@ -262,15 +256,21 @@
                     console.log("your Nickname is " + textPetname);
                     console.log("your About section is " + textAbout);
                     console.log("your Profile picture URL is " + urlProfilePicture);
+                    
+                    localStorage.setItem("NickName", textPetname);
+                    localStorage.setItem("UserAbout", textAbout);
+                    localStorage.setItem("UserPPicture", urlProfilePicture);
 
-                    document.getElementById('userName').innerHTML = textPetname;
-
-                    localStorage.setItem("textPetname", textPetname);
-                    localStorage.setItem("textAbout", textAbout);
-                    localStorage.setItem("urlProfilePicture", urlProfilePicture);
+                    document.getElementById('homeUserName').innerHTML = textPetname;
 
                     settingsModal.style.display = "none";
                 }
+                var UserPicURL = localStorage.getItem("UserPPicture");
+                var NickName = localStorage.getItem("NickName");
+                var About = localStorage.getItem("UserAbout");
+                console.log(NickName);
+                console.log(UserPicURL);
+                console.log(About);
             </script>
         </div>
         <script>
@@ -297,28 +297,32 @@
         </script>
     </div>
     <div class="articles">
-        <div class="userInfo">
-            <img id="profilePic" src=""></img>
-            <p id="userName"></p>
+        <div id="userInfo">
+            <img id="homeProfilePic" src="">
+            <div id="homeUserName"></div>
+            <div id="publickeyhome"></div>
             <div id="userBio"></div>
             <div id="following"></div>
             <div id="followers"></div>
             <script>
                 /*
                 
-                var petName = document.getElementById("textPetname");
-                if (petName == null) {
+                var Nickname = document.localStorage.getItem("NickName");
+                if (NickName == null) {
                     document.getElementById('userName').innerHTML = pubKeyMinus2; 
                 } else {
-                    document.getElementById('userName').innerHTML = petName;
+                    document.getElementById('userName').innerHTML = NickName;
                 };
                 */
-                document.getElementById('userName').innerHTML = pubKeyMinus2;
 
-                //var textPetname = localStorage.getItem(textPetname);
-                console.log("Nickname is: " + textPetname);
-                
+                document.getElementById('homeUserName').innerHTML = NickName;
+                document.getElementById('homeProfilePic').src = UserPicURL;
+                document.getElementById('userBio').innerHTML = About;
+                document.getElementById('publickeyhome').innerHTML = pubKeyMinus2;
+
             </script>
+        <br>
+        <br>
         </div>
         <div id="card-container"></div>
         <div id="loader">

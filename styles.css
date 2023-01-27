@@ -218,7 +218,7 @@ body {
     color: white;
     border-radius: 5px;
     background-color: rgb(252, 169, 3);
-    border: 0px; 
+    border: 0px;
 }
 
 .articles {
@@ -233,16 +233,28 @@ body {
     float: left;
 }
 
-.userInfo {
-    align-items: left;
-    justify-content: left;
+
+#homeUserName {
+    font-size: 25px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
-#userName {
+#homeProfilePic {
+    width: 90px;
+    height: auto;
+    border-radius: 45px;
+    padding-top: 15px;
+}
+
+#publickeyhome {
     font-size: 10px;
 }
 
-
+#userBio {
+    padding-top: 20px;
+    font-size: 17px;
+}
 
 #card-container {
     display: flex;
@@ -326,13 +338,6 @@ body {
     justify-content: right;
     height: 500px;
     width: 25%;
-    float: left;
-}
-
-#search-logo {
-    width: 20px;
-    padding-right: 5px;
-    padding-top: 5px;
     float: left;
 }
 
