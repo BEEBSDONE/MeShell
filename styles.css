@@ -95,6 +95,7 @@ body {
     border: 0px;
     width: 30px;
     height: 30px;
+    cursor: pointer;
 }
 
 #settings-button {
@@ -102,6 +103,7 @@ body {
     border: 0px;
     width: 30px;
     height: 30px;
+    cursor: pointer;
 }
 
 #settingsLogo {
@@ -150,8 +152,10 @@ body {
 }
 
 #publish-textarea {
-    height: 80%;
-    width: 95%;
+    min-height: 80%;
+    max-height: 80%;
+    min-width: 95%;
+    max-width: 95%;
     padding-left: 5px;
     font: 1.3rem 'Fira Sans', sans-serif;
     align-content: center;
@@ -186,7 +190,6 @@ body {
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */   
 }
 
-
 .settings-modal-content {
     background-color: #fefefe;
     border-radius: 10px;
@@ -196,6 +199,100 @@ body {
     width: 80%; /* Could be more or less, depending on screen size */
 }
 
+.settingsSection{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+#inputSection {
+    display: flex;
+    flex-direction: column;
+    height: 50%;
+    
+}
+
+#previewSection {
+    display: flex;
+    flex-direction: column;
+    height: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#inputSection #userNameTextSettings {
+    flex: 1;
+    font: 'Fira Sans', sans-serif;
+    font-size: 15px;
+    color: rgb(187, 94, 28);
+    padding-bottom: 3px;
+}
+
+#inputSection #petnameInput {
+    flex: 1;
+    font: 0.85rem 'Fira Sans', sans-serif;
+    width: 170px;
+}
+
+#inputSection #AboutTextsettings {
+    flex: 1;
+    font: 'Fira Sans', sans-serif;
+    font-size: 15px;
+    color: rgb(187, 94, 28);
+    padding-bottom: 3px;
+    padding-top: 10px;
+}
+
+#inputSection #aboutTextArea {
+    flex: 1;
+    font: 0.85rem 'Fira Sans', sans-serif;
+    min-width: 170px;
+    max-width: 170px;
+    min-height: 40px;
+    max-height: 40px;
+}
+
+#inputSection #PictureSettings {
+    flex: 1;
+    font: 'Fira Sans', sans-serif;
+    font-size: 15px;
+    color: rgb(187, 94, 28);
+    padding-bottom: 3px;
+    padding-top: 10px;
+}
+
+#inputSection #pictureInput {
+    flex: 1;
+    flex: 1;
+    font: 0.85rem 'Fira Sans', sans-serif;
+    width: 170px;
+}
+
+#inputSection #saveChangesButton {
+    flex: 1;
+}
+
+#previewSection #previewPPicture {
+    flex: 1;
+    height: 90px;
+    border-radius: 45px;
+    padding-top: 15px;
+}
+
+#previewSection #previewNickName {
+    flex: 1;
+    font: 'Fira Sans', sans-serif;
+    font-size: 25px;
+    color: rgb(187, 94, 28);
+
+}
+
+#previewSection #previewBio {
+    flex: 1;
+    font: 'Fira Sans', sans-serif;
+    font-size: 20px;
+    color: rgb(187, 94, 28);
+}
 
 .settingsClose {
     color: #aaa;

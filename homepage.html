@@ -28,9 +28,7 @@
 
         function connectedSubbed() {
             socket.addEventListener('open', function( event ) {
-                console.log( "connected to " + relay )
-                console.log("Your Public Key: " + pubKeyMinus2);
-                console.log("Your Private Key: " + privKey);
+                console.log( "connected to " + relay );
                 
                 var subId = keypair.privateKey.toString( "hex" );
                 var filterMe = { "authors": [ pubKey ], "kinds": [1] };
@@ -160,26 +158,30 @@
         <div id="settings-modal-id" class="settings-modal">
             <div class="settings-modal-content">
                 <span class="settingsClose">&times;</span>
-                <div id="nameSection">
-                    <p>User Name</p>
-                    <input id="petnameInput"
-                            placeholder="You can choose your name">
-                </div>
-                <div id="aboutSection">
-                    <p>About</p>
-                    <textarea id="aboutTextArea"
-                        placeholder = "You can write about yourself here"></textarea>
-                </div>
-                <div id = "pictureSection">
-                    <p>Profile Picture</p>
-                    <input id = "pictureInput"
-                        placeholder = "Paste your link here">
-                </div>
-                <div id="saveChangesSettings">
-                    <button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameInput').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureInput').value)">Save</button>
+                <div class="settingsSection">
+                    <div id="inputSection">
+                        <div id="userNameTextSettings">User Name</div>
+                        <input id="petnameInput"
+                                placeholder="Your name here">
+                    
+                        <div id="AboutTextsettings">About</div>
+                        <textarea id="aboutTextArea"
+                            placeholder = "You can write about yourself"></textarea>
+                    
+                        <div id="PictureSettings">Profile Picture</div>
+                        <input id = "pictureInput"
+                            placeholder = "Paste your link here">
+                        <br>
+                        <button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameInput').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureInput').value)">Save</button>
+                    </div>
+                    <div id="previewSection">
+                        <img id="previewPPicture" src=""></img>
+                        <div id="previewNickName"></div>
+                        <div id="previewPubkey"></div>
+                        <div id="previewBio"></div>
+                    </div>
                 </div>
             </div>
-        </div>
             <script>
                 function makeNote( note ) {
                     console.log( "note: '" + note + "'" );
@@ -240,6 +242,19 @@
             
                 settingsButton.onclick = function() {
                     settingsModal.style.display = "block";
+
+                    let NickNameSettings = localStorage.getItem("NickName");
+                    let AboutSettings = localStorage.getItem("UserAbout");
+                    let UserPicsettings = localStorage.getItem("UserPPicture");
+                    let PubkeySettings = localStorage.getItem("pubKeyMinus2");
+
+                    document.getElementById("petnameInput").value = NickNameSettings;
+                    document.getElementById("aboutTextArea").value = AboutSettings;
+                    document.getElementById("pictureInput").value = UserPicsettings;
+                    document.getElementById('previewPPicture').src = UserPicsettings;
+                    document.getElementById('previewNickName').innerHTML = NickNameSettings;
+                    document.getElementById('previewBio').innerHTML = AboutSettings;
+                    document.getElementById('previewPubkey').innerHTML = PubkeySettings;
                 }
             
                 settingsCloseButton.onlick = function() {
@@ -253,24 +268,16 @@
                 }
             
                 function SendMetadata(textPetname, textAbout, urlProfilePicture) {
-                    console.log("your Nickname is " + textPetname);
-                    console.log("your About section is " + textAbout);
-                    console.log("your Profile picture URL is " + urlProfilePicture);
-                    
+
                     localStorage.setItem("NickName", textPetname);
                     localStorage.setItem("UserAbout", textAbout);
                     localStorage.setItem("UserPPicture", urlProfilePicture);
-
-                    document.getElementById('homeUserName').innerHTML = textPetname;
 
                     settingsModal.style.display = "none";
                 }
                 var UserPicURL = localStorage.getItem("UserPPicture");
                 var NickName = localStorage.getItem("NickName");
                 var About = localStorage.getItem("UserAbout");
-                console.log(NickName);
-                console.log(UserPicURL);
-                console.log(About);
             </script>
         </div>
         <script>
@@ -306,7 +313,6 @@
             <div id="followers"></div>
             <script>
                 /*
-                
                 var Nickname = document.localStorage.getItem("NickName");
                 if (NickName == null) {
                     document.getElementById('userName').innerHTML = pubKeyMinus2; 
@@ -314,12 +320,10 @@
                     document.getElementById('userName').innerHTML = NickName;
                 };
                 */
-
                 document.getElementById('homeUserName').innerHTML = NickName;
                 document.getElementById('homeProfilePic').src = UserPicURL;
                 document.getElementById('userBio').innerHTML = About;
                 document.getElementById('publickeyhome').innerHTML = pubKeyMinus2;
-
             </script>
         <br>
         <br>
