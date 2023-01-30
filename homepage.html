@@ -42,7 +42,9 @@
 
                 const sendNote = document.getElementById('makeNoteButton');
                 sendNote.innerHTML = `<button id="publish-text-button" onclick="makeNote(document.getElementById('publish-textarea').value)">Publish</button>`;
-
+                
+                const sendMetaD = document.getElementById('saveChangesButton');
+                sendMetaD.innerHTML = `<button id="saveChangesButton" onclick="SendMetadata().value)">Save</button>`;
 
             })
         }
@@ -172,10 +174,15 @@
                         <input id = "pictureInput"
                             placeholder = "Paste your link here">
                         <br>
+                        <button id="previewChangesButton" onclick="previewChanges()">Preview</button>
+                        <br>
                         <button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameInput').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureInput').value)">Save</button>
                     </div>
                     <div id="previewSection">
-                        <img id="previewPPicture" src=""></img>
+                        <div id="previewPPictureContainer">
+                            <img id="previewPPicture" src="" style="display: none;">
+                            <div id="identiconPreview" style="display: none;"></div>
+                        </div>
                         <div id="previewNickName"></div>
                         <div id="previewPubkey"></div>
                         <div id="previewBio"></div>
@@ -186,7 +193,6 @@
                 function makeNote( note ) {
                     console.log( "note: '" + note + "'" );
                     var now = Math.floor( ( new Date().getTime() ) / 1000 );
-                    console.log( now );
                     var newevent = [
                             0,
                             pubKeyMinus2,
@@ -242,19 +248,22 @@
             
                 settingsButton.onclick = function() {
                     settingsModal.style.display = "block";
+                    
+                    if (!UserPPicture) {
+                        document.getElementById('identiconPreview').innerHTML = stringSvgDiv;
+                        document.getElementById('identiconPreview').style.display = "block";
+                    } else {
+                        document.getElementById('previewPPicture').src = UserPPicture;
+                        document.getElementById('previewPPicture').style.display = "block";
+                    }
 
-                    let NickNameSettings = localStorage.getItem("NickName");
-                    let AboutSettings = localStorage.getItem("UserAbout");
-                    let UserPicsettings = localStorage.getItem("UserPPicture");
-                    let PubkeySettings = localStorage.getItem("pubKeyMinus2");
-
-                    document.getElementById("petnameInput").value = NickNameSettings;
-                    document.getElementById("aboutTextArea").value = AboutSettings;
-                    document.getElementById("pictureInput").value = UserPicsettings;
-                    document.getElementById('previewPPicture').src = UserPicsettings;
-                    document.getElementById('previewNickName').innerHTML = NickNameSettings;
-                    document.getElementById('previewBio').innerHTML = AboutSettings;
-                    document.getElementById('previewPubkey').innerHTML = PubkeySettings;
+                    document.getElementById("petnameInput").value = NickName;
+                    document.getElementById("aboutTextArea").value = UserAbout;
+                    document.getElementById("previewPPicture").value = UserPPicture;
+                    document.getElementById('previewNickName').innerHTML = NickName;
+                    document.getElementById('previewBio').innerHTML = UserAbout;
+                    document.getElementById('previewPubkey').innerHTML = pubKeyMinus2;
+                    
                 }
             
                 settingsCloseButton.onlick = function() {
@@ -267,17 +276,111 @@
                     }
                 }
             
+                
                 function SendMetadata(textPetname, textAbout, urlProfilePicture) {
+    
+                localStorage.setItem("NickName", textPetname);
+                localStorage.setItem("UserAbout", textAbout);
+                localStorage.setItem("UserPPicture", urlProfilePicture);
 
-                    localStorage.setItem("NickName", textPetname);
-                    localStorage.setItem("UserAbout", textAbout);
-                    localStorage.setItem("UserPPicture", urlProfilePicture);
+                var name = "";
+                var about = "";
+                var picture = "";
 
-                    settingsModal.style.display = "none";
+                var myMetaInfo = JSON.parse(localStorage.getItem("my-meta-info")) || {};
+
+                if (document.getElementById("petnameInput")) {
+                name = document.getElementById("petnameInput").value;
+                } else {
+                name = "";
                 }
-                var UserPicURL = localStorage.getItem("UserPPicture");
-                var NickName = localStorage.getItem("NickName");
-                var About = localStorage.getItem("UserAbout");
+
+                if (document.getElementById("aboutTextArea")) {
+                about = document.getElementById("aboutTextArea").value;
+                } else {
+                about = "";
+                }
+
+                if (document.getElementById("pictureInput")) {
+                picture = document.getElementById("pictureInput").value;
+                } else {
+                picture = "";
+                }
+
+                myMetaInfo["name"] = name;
+                myMetaInfo["about"] = about;
+                myMetaInfo["img"] = picture;
+
+                localStorage.setItem("my-meta-info", JSON.stringify(myMetaInfo));;
+
+
+                var note = JSON.stringify( myMetaInfo );
+                var now = Math.floor( ( new Date().getTime() ) / 1000 );
+                var newevent = [
+                    0,
+                    pubKeyMinus2,
+                    now,
+                    0,
+                    [],
+                    note
+                ];
+                var message = JSON.stringify( newevent );
+                console.log( "message: '" + message + "'" );
+                var msghash = bitcoinjs.crypto.sha256( message ).toString( 'hex' );
+                console.log( "msghash: '" + msghash + "'" );
+                nobleSecp256k1.schnorr.sign( msghash, privKey ).then( 
+                        value => { 
+                                sig = value;
+                                console.log( "the sig is:", sig );
+                                nobleSecp256k1.schnorr.verify( 
+                                        sig,
+                                        msghash,
+                                        pubKeyMinus2
+                                ).then(
+                                        value => { 
+                                                console.log( "is the signature valid for the above pubkey over the message 'test'?", value );
+                                                if ( value ) {
+                                                        var fullevent = {
+                                                            "id": msghash,
+                                                            "pubkey": pubKeyMinus2,
+                                                            "created_at": now,
+                                                            "kind": 0,
+                                                            "tags": [],
+                                                            "content": note,
+                                                            "sig": sig
+                                                        }
+                                                        var sendable = [ "EVENT", fullevent ];
+                                                        sessionStorage.sendable = JSON.stringify( sendable );
+                                                        socket.send( '["EVENT",' + JSON.stringify( JSON.parse( sessionStorage.sendable )[ 1 ] ) + ']' );
+                                                }
+                                        }
+                            );
+                        }
+                );
+                settingsModal.style.display = "none";
+                location.reload();
+                }
+                
+
+                function previewChanges () {
+                    var textNickN = document.getElementById("petnameInput").value;
+                    var textAboutpreview = document.getElementById("aboutTextArea").value;
+                    var urlProfilePicture = document.getElementById("pictureInput").value;
+                    var UserPicturePreview = ""
+
+                    if (!UserPPicture) {
+                        document.getElementById('identiconPreview').innerHTML = stringSvgDiv;
+                        document.getElementById('identiconPreview').style.display = "block";
+                    } else {
+                        var UserPicturePreview = urlProfilePicture;
+                        document.getElementById('previewPPicture').src = UserPicturePreview;
+                        document.getElementById('previewPPicture').style.display = "block";
+                    }
+
+                    document.getElementById('previewNickName').innerHTML = textNickN;
+                    document.getElementById('previewBio').innerHTML = textAboutpreview;
+                    document.getElementById('previewPubkey').innerHTML = pubKeyMinus2;
+                };
             </script>
         </div>
         <script>
@@ -305,28 +408,50 @@
     </div>
     <div class="articles">
         <div id="userInfo">
-            <img id="homeProfilePic" src="">
+            <div id="homeProfilePicContainer">
+                <img id="homeProfilePic" style="display: none;">
+                <div id="identicon" style="display: none;"></div>
+            </div>
             <div id="homeUserName"></div>
             <div id="publickeyhome"></div>
             <div id="userBio"></div>
             <div id="following"></div>
             <div id="followers"></div>
-            <script>
-                /*
-                var Nickname = document.localStorage.getItem("NickName");
-                if (NickName == null) {
-                    document.getElementById('userName').innerHTML = pubKeyMinus2; 
-                } else {
-                    document.getElementById('userName').innerHTML = NickName;
-                };
-                */
-                document.getElementById('homeUserName').innerHTML = NickName;
-                document.getElementById('homeProfilePic').src = UserPicURL;
-                document.getElementById('userBio').innerHTML = About;
-                document.getElementById('publickeyhome').innerHTML = pubKeyMinus2;
+            <script type="module">
+                import { identiconSvg } from 'https://unpkg.com/minidenticons@2.0.0/minidenticons.min.js'
             </script>
-        <br>
-        <br>
+            <script>
+                var stringSvgDiv = "<identicon-svg username='"+pubKeyMinus2 + "'></identicon-svg>";
+                var UserPPicture = localStorage.getItem("UserPPicture");
+
+                if (!UserPPicture) {
+                    document.getElementById('identicon').innerHTML = stringSvgDiv;
+                    document.getElementById('identicon').style.display = "block";
+                } else {
+                    document.getElementById('homeProfilePic').src = UserPPicture;
+                    document.getElementById('homeProfilePic').style.display = "block";
+                }
+
+                var NickName = localStorage.getItem('NickName');
+                if (!NickName) {
+                    document.getElementById("homeUserName").style.display = "none";
+                } else {
+                    document.getElementById("homeUserName").innerHTML = NickName;
+                }
+
+
+                var UserAbout = localStorage.getItem('UserAbout');
+                if (!UserAbout) {
+                    document.getElementById("userBio").style.display = "none";
+                } else {
+                    document.getElementById("userBio").innerHTML = UserAbout;
+                }
+
+                document.getElementById('publickeyhome').innerHTML = pubKeyMinus2;
+                
+            </script>
+            <br>
+            <br>
         </div>
         <div id="card-container"></div>
         <div id="loader">
@@ -413,9 +538,6 @@
 
             window.addEventListener("scroll", handleInfiniteScroll);
         </script>
-    </div>
-
-        
     </div>
     <div class="right-section">
         <div id="input-pubkey">

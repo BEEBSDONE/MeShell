@@ -51,6 +51,8 @@ body {
     display: block; /* display image as block element */
     margin: 0 auto; /* center image horizontally */
     padding: 20px;
+    padding-bottom: 50px;
+    cursor: pointer;
 }
 
 .feed-selector {
@@ -68,6 +70,7 @@ body {
     width: 30px;
     padding-left: 20px;
     padding-bottom: 30px;
+    cursor: pointer;
 }
 
 
@@ -75,12 +78,14 @@ body {
     width: 30px;
     padding-left: 20px;
     padding-bottom: 30px;
+    cursor: pointer;
 }
 
 #messages-logo {
     width: 30px;
     padding-left: 20px;
     padding-bottom: 30px;
+    cursor: pointer;
 }
 
 
@@ -88,6 +93,7 @@ body {
     width: 30px;
     padding-left: 15px;
     padding-bottom: 30px;
+    
 }
 
 #publish-button {
@@ -196,7 +202,8 @@ body {
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 0px;
-    width: 80%; /* Could be more or less, depending on screen size */
+    min-width: 510px;
+    width: 60%; /* Could be more or less, depending on screen size */
 }
 
 .settingsSection{
@@ -275,8 +282,19 @@ body {
 #previewSection #previewPPicture {
     flex: 1;
     height: 90px;
+    width: 90px;
     border-radius: 45px;
-    padding-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#previewSection #identiconPreview {
+    flex: 1;
+    height: 90px;
+    width: 90px;
+    border-radius: 45px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #previewSection #previewNickName {
@@ -284,7 +302,18 @@ body {
     font: 'Fira Sans', sans-serif;
     font-size: 25px;
     color: rgb(187, 94, 28);
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
 
+#previewSection #previewPubkey {
+    font: 'Fira Sans', sans-serif;
+    font-size: 10px;
+    color: rgb(187, 94, 28);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #previewSection #previewBio {
@@ -292,6 +321,21 @@ body {
     font: 'Fira Sans', sans-serif;
     font-size: 20px;
     color: rgb(187, 94, 28);
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 50%;
+    padding-top: 20px;
+    font-size: 17px;
+    text-align: center;
+}
+
+#previewChangesButton {
+    font: 'Fira Sans', sans-serif;
+    font-size: 15px;
+    color: white;
+    border-radius: 5px;
+    background-color: rgb(252, 169, 3);
+    border: 0px;
 }
 
 .settingsClose {
@@ -339,13 +383,30 @@ body {
 
 #homeProfilePic {
     width: 90px;
-    height: auto;
+    height: 90px;
     border-radius: 45px;
-    padding-top: 15px;
+    background-color: #ffffff;
+    margin-left: auto;
+    margin-right: auto;
+    background-size: cover;
+}
+
+#identicon {
+    width: 90px;
+    height: 90px;
+    border-radius: 45px;
+    background-color: #ffffff;
+    margin-left: auto;
+    margin-right: auto;
+    background-size: cover;
 }
 
 #publickeyhome {
     font-size: 10px;
+    font: 'Fira Sans', sans-serif;
+    color: rgb(187, 94, 28);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #userBio {
@@ -427,7 +488,6 @@ body {
 
 
 .right-section {
-    text-align: right;
     font-size: 20px;
     color: white;
     display: block;
