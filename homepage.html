@@ -44,7 +44,7 @@
                 sendNote.innerHTML = `<button id="publish-text-button" onclick="makeNote(document.getElementById('publish-textarea').value)">Publish</button>`;
                 
                 const sendMetaD = document.getElementById('saveChangesButton');
-                sendMetaD.innerHTML = `<button id="saveChangesButton" onclick="SendMetadata().value)">Save</button>`;
+                sendMetaD.innerHTML = `<button id="saveChangesButton" onclick="SendMetadata(document.getElementById('petnameInput').value, document.getElementById('aboutTextArea').value, document.getElementById('pictureInput').value)">Save</button>`;
 
             })
         }
@@ -159,7 +159,7 @@
         </div>
         <div id="settings-modal-id" class="settings-modal">
             <div class="settings-modal-content">
-                <span class="settingsClose">&times;</span>
+                <div class="settingsClose">&times;</div>
                 <div class="settingsSection">
                     <div id="inputSection">
                         <div id="userNameTextSettings">User Name</div>
@@ -187,6 +187,19 @@
                         <div id="previewPubkey"></div>
                         <div id="previewBio"></div>
                     </div>
+                </div>
+                <div id="relayContainer">
+                    <!-- 
+                    <div id = "relaysText">Relays</div>
+                    
+                    <ul id="relaysList">
+                      <li id="relay1">wss://relay.cryptocculture.com</li>
+                      <li id="relay2">wss://relay.damus.io</li>
+                    </ul>
+                  
+                    <input type="text" id="relayInput">
+                    <button id="addRelay">Add Relay</button>
+                    -->
                 </div>
             </div>
             <script>
@@ -267,6 +280,7 @@
                 }
             
                 settingsCloseButton.onlick = function() {
+                    location.reload();
                     settingsModal.style.display = "none";
                 }
             
@@ -287,7 +301,7 @@
                 var about = "";
                 var picture = "";
 
-                var myMetaInfo = JSON.parse(localStorage.getItem("my-meta-info")) || {};
+                var set_metadata = JSON.parse(localStorage.getItem("my-meta-info")) || {};
 
                 if (document.getElementById("petnameInput")) {
                 name = document.getElementById("petnameInput").value;
@@ -307,14 +321,14 @@
                 picture = "";
                 }
 
-                myMetaInfo["name"] = name;
-                myMetaInfo["about"] = about;
-                myMetaInfo["img"] = picture;
+                set_metadata["name"] = name;
+                set_metadata["about"] = about;
+                set_metadata["picture"] = picture;
 
-                localStorage.setItem("my-meta-info", JSON.stringify(myMetaInfo));;
+                localStorage.setItem("my-meta-info", JSON.stringify(set_metadata));;
 
 
-                var note = JSON.stringify( myMetaInfo );
+                var note = JSON.stringify( set_metadata );
                 var now = Math.floor( ( new Date().getTime() ) / 1000 );
                 var newevent = [
                     0,
@@ -358,7 +372,7 @@
                         }
                 );
                 settingsModal.style.display = "none";
-                location.reload();
+                //location.reload();
                 }
                 
 
